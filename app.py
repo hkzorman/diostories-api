@@ -12,8 +12,12 @@ CORS(app)
 
 diostories = {}
 
+# TODO: Add logging
+
 # Initialization - make sure uploads directory exists
-# TODO: Implement
+uploadPath = os.path.join(app.root_path, 'uploads', 'assets', 'img')
+if not os.path.exists(uploadPath):
+	os.makedirs(uploadPath)
 
 # Load diostories file
 try:
@@ -51,14 +55,15 @@ def save():
         # Find max key for diostory
         max_id = 0
         for key in diostories:
-            if key > max_id:
-                max_id = key
+            intKey = int(key)
+            if intKey > max_id:
+                max_id = intKey
         
         id = max_id
         if ("id" in diostory):
             id = diostory["id"]
 
-        # Save playlistx
+        # Save diostory
         diostories[id] = {
             "title": diostory["title"],
             "panels": diostory["panels"]
