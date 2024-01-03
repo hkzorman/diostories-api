@@ -19,6 +19,10 @@ uploadPath = os.path.join(app.root_path, 'uploads', 'assets', 'img')
 if not os.path.exists(uploadPath):
 	os.makedirs(uploadPath)
 
+uploadPath = os.path.join(app.root_path, 'uploads', 'assets', 'tmp')
+if not os.path.exists(uploadPath):
+	os.makedirs(uploadPath)
+
 # Load diostories file
 try:
     data_file = open("data.json", "x")
@@ -62,6 +66,14 @@ def save():
         id = max_id
         if ("id" in diostory):
             id = diostory["id"]
+
+        # Check if any temp file was used
+        for panel in diostory["panels"]:
+            print("The panel: ", panel)
+            last_sep_idx = panel["imageUrl"].rindex(os.sep)
+            img_path = panel["imageUrl"][:last_sep_idx]
+            if tmp_str in img_path:
+                target = panel["imageUrl"].replace(tmp_str, )
 
         # Save diostory
         diostories[id] = {
@@ -109,15 +121,16 @@ def get(id):
     
     return jsonify(diostories[id])
 
-@app.route('/uploadImage', methods=['GET', 'POST'])
-def upload_file():
+@app.route('/uploadImage/<is_temporary>', methods=['GET', 'POST'])
+def upload_file(is_temporary):
     if request.method == 'POST':
+        img_dir = 'tmp' if is_temporary else 'img'
         file = request.files['file']
-        path = os.path.join(app.root_path, 'uploads', 'assets', 'img', secure_filename(file.filename))
+        path = os.path.join(app.root_path, 'uploads', 'assets', img_dir, secure_filename(file.filename))
         file.save(f"{path}")
         return jsonify({
             "success": True,
-            "url": f"/assets/img/{secure_filename(file.filename)}"
+            "url": f"/assets/{img_dir}/{secure_filename(file.filename)}"
         })
 
     return jsonify({
